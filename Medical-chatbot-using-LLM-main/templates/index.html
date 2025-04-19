@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            font-family: 'Roboto', sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--background-color);
+            color: var(--text-color);
+        }
+
+        :root {
+            /* Light Mode */
+            --background-color: #e9ecef;
+            --header-gradient: linear-gradient(135deg, #6a11cb, #2575fc);
+            --bot-message-bg: #6a11cb;
+            --user-message-bg: #2575fc;
+            --text-color: #333;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Mode */
+            --background-color: #181818;
+            --header-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            --bot-message-bg: #375a7f;
+            --user-message-bg: #1abc9c;
+            --text-color: #f5f5f5;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            height: 100%;
+            max-height: 90vh;
+            background: var(--background-color);
+            display: flex;
+            flex-direction: column;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .chat-header {
+            background: var(--header-gradient);
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            position: relative;
+        }
+
+        .chat-header button {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            padding: 8px 15px;
+            background: #fff;
+            color: var(--text-color);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .chat-header button:hover {
+            background: #ddd;
+        }
+
+        .chat-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: var(--background-color);
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 15px;
+            line-height: 1.5;
+            display: inline-block;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            word-wrap: break-word;
+        }
+
+        .message.bot {
+            background: var(--bot-message-bg);
+            color: #fff;
+            align-self: flex-start;
+            border-top-left-radius: 0;
+        }
+
+        .message.user {
+            background: var(--user-message-bg);
+            color: #fff;
+            align-self: flex-end;
+            border-top-right-radius: 0;
+        }
+
+        .chat-footer {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--background-color);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-footer input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            outline: none;
+            font-size: 16px;
+            margin-right: 10px;
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-footer button {
+            padding: 12px 20px;
+            background: #6a11cb;
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .chat-footer button:hover {
+            background: #2575fc;
+        }
+
+        .chat-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-body::-webkit-scrollbar-thumb {
+            background: var(--bot-message-bg);
+            border-radius: 4px;
+        }
+
+        .chat-body::-webkit-scrollbar-track {
+            background: #f0f0f0;
+        }
+
+        .chat-container {
+            height: 90vh;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* Loading indicator */
+        .typing-indicator {
+            display: flex;
+            padding: 10px 15px;
+            align-self: flex-start;
+        }
+
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background: var(--bot-message-bg);
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 2px;
+            opacity: 0.4;
+        }
+
+        .typing-indicator span:nth-child(1) {
+            animation: typing 1s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation: typing 1s infinite 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation: typing 1s infinite 0.4s;
+        }
+
+        @keyframes typing {
+            0% { opacity: 0.4; transform: translateY(0); }
+            50% { opacity: 1; transform: translateY(-5px); }
+            100% { opacity: 0.4; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            Medical AI Assistant
+            <button id="theme-toggle">Dark Mode</button>
+        </div>
+        <div class="chat-body" id="chat-body">
+            <div class="message bot">
+                Hello! I'm your medical AI assistant. How can I help you today?
+            </div>
+        </div>
+        <div class="chat-footer">
+            <input id="chat-input" type="text" placeholder="Ask me anything about medicine..." autocomplete="off">
+            <button id="send-btn">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const body = document.body;
+        const themeToggle = document.getElementById('theme-toggle');
+        const chatBody = document.getElementById('chat-body');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        // Toggle theme
+        themeToggle.addEventListener('click', () => {
+            const isDarkMode = body.hasAttribute('data-theme');
+            if (isDarkMode) {
+                body.removeAttribute('data-theme');
+                themeToggle.textContent = 'Dark Mode';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeToggle.textContent = 'Light Mode';
+            }
+        });
+
+        // Append message to chat
+        function appendMessage(content, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = content;
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = '<span></span><span></span><span></span>';
+            chatBody.appendChild(typingDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // Hide typing indicator
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // Send message
+        async function sendMessage() {
+            const userInput = chatInput.value.trim();
+            if (!userInput) return;
+
+            appendMessage(userInput, 'user');
+            chatInput.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            try {
+                const response = await fetch('/get', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ msg: userInput })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const data = await response.text();
+                hideTypingIndicator();
+                appendMessage(data, 'bot');
+            } catch (err) {
+                hideTypingIndicator();
+                appendMessage("Sorry, I'm having trouble answering right now. Please try again later.", 'bot');
+                console.error('Error:', err);
+            }
+        }
+
+        // Send button click
+        sendBtn.addEventListener('click', sendMessage);
+
+        // Enter key sends message
+        chatInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Focus input on load
+        chatInput.focus();
+    </script>
+</body>
+</html>

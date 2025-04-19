@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Poppins:wght@300&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .welcome-container {
+            position: relative;
+            text-align: center;
+            z-index: 10;
+        }
+        
+        .welcome-text {
+            font-size: 10vw;
+            font-weight: 900;
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+            margin: 0;
+            line-height: 0.9;
+            letter-spacing: -3px;
+            position: relative;
+            display: inline-block;
+            transform: perspective(500px) rotateX(15deg);
+        }
+        
+        .welcome-text::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, rgba(255,154,158,0.8) 0%, rgba(250,208,196,0.8) 100%);
+            border-radius: 50%;
+            filter: blur(5px);
+            transform: scaleX(0.9);
+        }
+        
+        .subtext {
+            font-size: 1.5vw;
+            color: #6c757d;
+            margin-top: 20px;
+            font-weight: 300;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+        
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(255, 154, 158, 0.6);
+            border-radius: 50%;
+            filter: blur(2px);
+            animation: float linear infinite;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    <div class="welcome-container">
+        <h1 class="welcome-text">WELCOME</h1>
+    </div>
+
+    <script>
+        // Create floating particles
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = 30;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            
+            // Random properties
+            const size = Math.random() * 20 + 5;
+            const posX = Math.random() * window.innerWidth;
+            const posY = Math.random() * window.innerHeight;
+            const duration = Math.random() * 15 + 10;
+            const delay = Math.random() * -20;
+            const colorVal = Math.random() * 60 + 160;
+            
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${posX}px`;
+            particle.style.top = `${posY}px`;
+            particle.style.animationDuration = `${duration}s`;
+            particle.style.animationDelay = `${delay}s`;
+            particle.style.background = `rgba(${colorVal}, ${colorVal-50}, ${colorVal-20}, ${Math.random() * 0.4 + 0.2})`;
+            
+            particlesContainer.appendChild(particle);
+        }
+    </script>
+</body>
+</html>
